@@ -1,5 +1,7 @@
 object Dependencies {
 
+    const val coil = "io.coil-kt:coil-compose:2.3.0"
+
     object Compose {
         const val compilerVersion = "1.3.2"
     }

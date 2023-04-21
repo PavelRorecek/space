@@ -13,7 +13,8 @@ import androidx.core.view.WindowCompat
 private val gray = Color(0xFF383838)
 
 private val LightColorScheme = darkColorScheme(
-    primary = Color.Red,
+    primary = gray,
+    onPrimary = Color.White,
     secondary = Color.Red,
     tertiary = Color.Red,
     background = Color.White,
@@ -29,8 +30,8 @@ public fun AppTheme(
     if (!view.isInEditMode) {
         SideEffect {
             (view.context as? Activity)?.window?.let { window ->
-                window.statusBarColor = colorScheme.background.toArgb()
-                WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = false
+                window.statusBarColor = colorScheme.onPrimary.toArgb()
+                WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = true
             }
         }
     }

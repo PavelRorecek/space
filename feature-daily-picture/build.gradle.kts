@@ -12,6 +12,7 @@ android {
 dependencies {
     implementation(project(":core-design"))
     implementation(Dependencies.Serialization.json)
+    implementation(Dependencies.coil)
 
     testImplementation(project(":core-test"))
 }

@@ -36,6 +36,8 @@ complexity:
   LongMethod:
     active: true
     threshold: 80
+  LongParameterList:
+    active: false
 
 coroutines:
   active: true

@@ -1,2 +1,4 @@
 <resources>
+    <string name="dailypicture.explanation">Explanation</string>
+    <string name="dailypicture.today">Today</string>
 </resources>
