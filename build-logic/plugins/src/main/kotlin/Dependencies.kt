@@ -1,11 +1,20 @@
 object Dependencies {
 
+    object Accompanist {
+        private const val version = "0.31.0-alpha"
+
+        // Remove Accompanist swiperefresh once pullRefresh makes it into material3
+        const val swiperefresh = "com.google.accompanist:accompanist-swiperefresh:$version"
+        const val placeholder = "com.google.accompanist:accompanist-placeholder-material:$version"
+    }
+
     const val coil = "io.coil-kt:coil-compose:2.3.0"
-    const val datetime = "org.jetbrains.kotlinx:kotlinx-datetime:0.4.0"
 
     object Compose {
-        const val compilerVersion = "1.3.2"
+        const val compilerVersion = "1.4.6"
     }
+
+    const val datetime = "org.jetbrains.kotlinx:kotlinx-datetime:0.4.0"
 
     object Coroutines {
         const val test = "org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.4"
@@ -32,6 +41,4 @@ object Dependencies {
     object Serialization {
         const val json = "org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1"
     }
-
-    const val shimmer = "com.valentinilk.shimmer:compose-shimmer:1.0.4"
 }

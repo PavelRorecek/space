@@ -1,6 +1,8 @@
 package com.pavelrorecek.feature.dailypicture.di
 
+import androidx.room.Room
 import com.pavelrorecek.feature.dailypicture.data.DailyApi
+import com.pavelrorecek.feature.dailypicture.data.DailyDatabase
 import com.pavelrorecek.feature.dailypicture.data.DailyPictureRepositoryImpl
 import com.pavelrorecek.feature.dailypicture.domain.DailyPictureRepository
 import com.pavelrorecek.feature.dailypicture.domain.ObserveDailyUseCase
@@ -43,6 +45,10 @@ public val featureDailyPictureModule: Module = module {
 
         retrofit.create(DailyApi::class.java)
     }
+    factory {
+        Room.databaseBuilder(get(), DailyDatabase::class.java, "DailyDatabase").build()
+    }
+    factory { get<DailyDatabase>().dailyDao() }
     singleOf(::DailyPictureRepositoryImpl) bind DailyPictureRepository::class
     factoryOf(::RequestDailyUseCase)
     factoryOf(::ObserveDailyUseCase)

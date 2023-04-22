@@ -13,6 +13,19 @@
         android:theme="@style/Theme.Space"
         android:name="com.pavelrorecek.app.MainApplication"
         tools:targetApi="31">
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="com.pavelrorecek.space.fileprovider"
+            android:grantUriPermissions="true"
+            android:exported="false">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+
+            <grant-uri-permission />
+        </provider>
+
         <activity
             android:name="com.pavelrorecek.app.MainActivity"
             android:exported="true"

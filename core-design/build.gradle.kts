@@ -7,5 +7,6 @@ android {
 }
 
 dependencies {
-    api(Dependencies.shimmer)
+    api(Dependencies.Accompanist.placeholder)
+    api(Dependencies.Accompanist.swiperefresh)
 }

@@ -27,6 +27,7 @@ internal class DailyViewModel(
         State(
             today = strings.today(),
             explanationTitle = strings.explanation(),
+            errorMessage = strings.loadingError(),
         ),
     )
     val state: StateFlow<State> = _state
@@ -42,6 +43,7 @@ internal class DailyViewModel(
                         val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
 
                         _state.value = _state.value.copy(
+                            isErrorVisible = false,
                             title = it.daily.title,
                             date = with(localDateTime) { "$dayOfMonth. $monthNumber. $year" },
                             isTodayVisible = localDateTime.date == today,
@@ -53,24 +55,44 @@ internal class DailyViewModel(
                                 is Image.LoadingError -> ImageState.Frown
                                 is Image.NotLoadedYet -> ImageState.Shimmer
                             },
+                            isExplanationVisible = true,
                         )
                     }
 
                     is DailyPictureRepository.DailyResult.Loading -> {
                         _state.value = _state.value.copy(
+                            isErrorVisible = false,
+                            title = "",
+                            date = "",
+                            isTodayVisible = false,
                             imageState = ImageState.Shimmer,
                             explanationState = ExplanationState.Shimmer,
+                            isExplanationVisible = true,
                         )
                     }
 
-                    is DailyPictureRepository.DailyResult.Error -> TODO()
+                    is DailyPictureRepository.DailyResult.Error -> {
+                        _state.value = _state.value.copy(
+                            isErrorVisible = true,
+                            title = "",
+                            date = "",
+                            isTodayVisible = false,
+                            imageState = ImageState.Frown,
+                            isExplanationVisible = false,
+                        )
+                    }
                 }
             }
         }
     }
 
+    fun onRefresh() {
+        viewModelScope.launch { requestDaily() }
+    }
+
     data class State(
-        val isDailyVisible: Boolean = false,
+        val isErrorVisible: Boolean = false,
+        val errorMessage: String,
 
         val imageState: ImageState = ImageState.Shimmer,
         val title: String = "",
@@ -80,6 +102,7 @@ internal class DailyViewModel(
 
         val explanationTitle: String,
         val explanationState: ExplanationState = ExplanationState.Shimmer,
+        val isExplanationVisible: Boolean = true,
     ) {
         sealed class ImageState {
             object Shimmer : ImageState()

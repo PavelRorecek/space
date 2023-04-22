@@ -27,14 +27,19 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import com.google.accompanist.placeholder.PlaceholderHighlight
+import com.google.accompanist.placeholder.material.placeholder
+import com.google.accompanist.placeholder.material.shimmer
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.pavelrorecek.core.design.BaseScreen
 import com.pavelrorecek.feature.dailyPicture.R
 import com.pavelrorecek.feature.dailypicture.presentation.DailyViewModel
 import com.pavelrorecek.feature.dailypicture.presentation.DailyViewModel.State.ExplanationState
-import com.valentinilk.shimmer.shimmer
 import org.koin.androidx.compose.koinViewModel
 
 private val shimmerFrownHeight = 500.dp
@@ -45,7 +50,10 @@ public fun DailyScreen() {
     val viewModel: DailyViewModel = koinViewModel()
     val state = viewModel.state.collectAsState().value
 
-    DailyScreen(state = state)
+    DailyScreen(
+        state = state,
+        onRefresh = viewModel::onRefresh,
+    )
 }
 
 @Composable
@@ -64,8 +72,10 @@ internal fun DailyImage(
                         modifier = Modifier
                             .height(shimmerFrownHeight)
                             .fillMaxWidth()
-                            .shimmer()
-                            .background(MaterialTheme.colorScheme.onBackground),
+                            .placeholder(
+                                visible = true,
+                                highlight = PlaceholderHighlight.shimmer(),
+                            ),
                     )
                 }
 
@@ -101,47 +111,65 @@ internal fun DailyImage(
 @Composable
 internal fun DailyScreen(
     state: DailyViewModel.State,
+    onRefresh: () -> Unit,
 ) {
     BaseScreen {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .padding(32.dp),
+        SwipeRefresh(
+            modifier = Modifier.fillMaxSize(),
+            state = rememberSwipeRefreshState(isRefreshing = false),
+            onRefresh = onRefresh,
         ) {
-            Box(modifier = Modifier.fillMaxWidth()) {
-                DailyImage(state = state)
-                Text(
-                    modifier = Modifier.padding(16.dp),
-                    text = state.title,
-                    color = Color.White,
-                )
-                Column(
-                    modifier = Modifier
-                        .padding(16.dp)
-                        .align(Alignment.BottomStart),
-                ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .padding(32.dp),
+            ) {
+                Box(modifier = Modifier.fillMaxWidth()) {
+                    DailyImage(state = state)
                     Text(
-                        text = state.date,
-                        color = Color.White.copy(alpha = 0.7f),
-                        fontSize = 12.sp,
+                        modifier = Modifier.padding(16.dp),
+                        text = state.title,
+                        color = Color.White,
                     )
-                    if (state.isTodayVisible) {
-                        Text(text = state.today, color = Color.White, fontSize = 32.sp)
+                    Column(
+                        modifier = Modifier
+                            .padding(16.dp)
+                            .align(Alignment.BottomStart),
+                    ) {
+                        Text(
+                            text = state.date,
+                            color = Color.White.copy(alpha = 0.7f),
+                            fontSize = 12.sp,
+                        )
+                        if (state.isTodayVisible) {
+                            Text(text = state.today, color = Color.White, fontSize = 32.sp)
+                        }
+                    }
+                }
+                Spacer(modifier = Modifier.size(24.dp))
+                if (state.isExplanationVisible) {
+                    Explanation(
+                        title = state.explanationTitle,
+                        explanationState = state.explanationState,
+                    )
+                }
+                if (state.isErrorVisible) {
+                    Box(
+                        modifier = Modifier.fillMaxWidth(),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Text(text = state.errorMessage, textAlign = TextAlign.Center)
                     }
                 }
             }
-            Explanation(
-                title = state.explanationTitle,
-                explanationState = state.explanationState,
-            )
         }
     }
 }
 
 @Composable
 internal fun Explanation(title: String, explanationState: ExplanationState) {
-    Column(modifier = Modifier.padding(top = 24.dp)) {
+    Column {
         Text(
             text = title,
             fontSize = 32.sp,
@@ -161,7 +189,10 @@ internal fun Explanation(title: String, explanationState: ExplanationState) {
                                     .height(20.dp)
                                     .fillMaxWidth()
                                     .clip(RoundedCornerShape(8.dp))
-                                    .shimmer()
+                                    .placeholder(
+                                        visible = true,
+                                        highlight = PlaceholderHighlight.shimmer(),
+                                    )
                                     .background(MaterialTheme.colorScheme.onBackground),
                             )
                         }
@@ -170,7 +201,10 @@ internal fun Explanation(title: String, explanationState: ExplanationState) {
                                 .height(20.dp)
                                 .fillMaxWidth(0.8f)
                                 .clip(RoundedCornerShape(6.dp))
-                                .shimmer()
+                                .placeholder(
+                                    visible = true,
+                                    highlight = PlaceholderHighlight.shimmer(),
+                                )
                                 .background(MaterialTheme.colorScheme.onBackground),
                         )
                     }

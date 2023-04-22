@@ -11,8 +11,9 @@ buildscript {
 plugins {
     id("com.android.application") version "8.1.0-beta01" apply false
     id("com.android.library") version "8.1.0-beta01" apply false
-    id("org.jetbrains.kotlin.android") version "1.7.20" apply false
+    id("org.jetbrains.kotlin.android") version "1.8.20" apply false
     id("io.gitlab.arturbosch.detekt") version "1.22.0"
+    id("com.google.devtools.ksp") version "1.8.20-1.0.11" apply false
 }
 
 dependencies {

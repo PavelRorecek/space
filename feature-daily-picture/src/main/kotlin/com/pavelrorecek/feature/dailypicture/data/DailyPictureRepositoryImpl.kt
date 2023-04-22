@@ -1,6 +1,8 @@
 package com.pavelrorecek.feature.dailypicture.data
 
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import androidx.core.graphics.drawable.toBitmap
 import coil.Coil
 import coil.request.ImageRequest
@@ -15,13 +17,18 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.withContext
+import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.atStartOfDayIn
 import kotlinx.datetime.toLocalDate
+import java.io.File
+import java.io.FileInputStream
+import java.io.FileOutputStream
 
 internal class DailyPictureRepositoryImpl(
     private val context: Context,
     private val api: DailyApi,
+    private val dao: DailyDao,
 ) : DailyPictureRepository {
 
     private val _daily: MutableStateFlow<DailyResult?> = MutableStateFlow(null)
@@ -59,7 +66,7 @@ internal class DailyPictureRepositoryImpl(
     override suspend fun load() {
         _daily.value = DailyResult.Loading
 
-        val dto = mockApiCall()
+        val dto = releaseApiCall()
 
         if (dto != null) {
             val title = dto.title
@@ -75,6 +82,7 @@ internal class DailyPictureRepositoryImpl(
                 image = Image.NotLoadedYet,
             )
             _daily.value = DailyResult.Loaded(noImageDaily)
+            withContext(Dispatchers.IO) { dao.deleteAll() }
             storeDailyToPersistence(noImageDaily)
 
             val lowresImage = lowResUrl.loadBitmap()
@@ -128,15 +136,54 @@ internal class DailyPictureRepositoryImpl(
         (response as? SuccessResult)?.drawable?.toBitmap()
     }
 
-    // TODO
-    @Suppress("UNUSED_PARAMETER", "EmptyFunctionBlock")
-    private fun storeDailyToPersistence(daily: Daily) {
+    private suspend fun storeDailyToPersistence(daily: Daily) {
+        withContext(Dispatchers.IO) {
+            dao.insert(
+                DailyEo(
+                    title = daily.title,
+                    explanation = daily.explanation,
+                    date = daily.date.toEpochMilliseconds(),
+                    imagePath = when (daily.image) {
+                        is Image.Loaded -> saveBitmapToInternalStorage(daily.image.image)
+                        is Image.LoadingError -> null
+                        is Image.NotLoadedYet -> null
+                    },
+                ),
+            )
+        }
     }
 
-    // TODO
-    @Suppress("FunctionOnlyReturningConstant")
-    private fun loadDailyFromPersistence(): Daily? {
-        return null
+    private fun saveBitmapToInternalStorage(bitmap: Bitmap): String? {
+        val file = File(context.filesDir, "daily.png")
+        val stream = FileOutputStream(file)
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)
+        stream.flush()
+        stream.close()
+
+        return file.path
+    }
+
+    private fun loadBitmapFromInternalStorage(path: String): Bitmap? {
+        val file = File(path)
+        val stream = FileInputStream(file)
+        val bitmap = BitmapFactory.decodeStream(stream)
+        stream.close()
+
+        return bitmap
+    }
+
+    private suspend fun loadDailyFromPersistence() = withContext(Dispatchers.IO) {
+        dao.first()?.let {
+            Daily(
+                title = it.title,
+                explanation = it.explanation,
+                date = Instant.fromEpochMilliseconds(it.date),
+                image = it.imagePath
+                    ?.let(::loadBitmapFromInternalStorage)
+                    ?.let(Image::Loaded)
+                    ?: Image.LoadingError,
+            )
+        }
     }
 
     override fun observe(): Flow<DailyResult> = _daily.filterNotNull()

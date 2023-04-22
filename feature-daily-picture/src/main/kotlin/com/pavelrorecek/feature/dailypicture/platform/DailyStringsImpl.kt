@@ -9,5 +9,6 @@ internal class DailyStringsImpl(
 ) : DailyStrings {
 
     override fun explanation() = context.getString(R.string.dailypicture_explanation)
+    override fun loadingError() = context.getString(R.string.dailypicture_loading_error)
     override fun today() = context.getString(R.string.dailypicture_today)
 }
