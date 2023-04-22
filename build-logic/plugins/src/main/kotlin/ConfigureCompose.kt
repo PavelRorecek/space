@@ -18,7 +18,9 @@ internal fun Project.configureCompose(
         }
 
         kotlinOptions {
-            freeCompilerArgs += "-Xopt-in=androidx.compose.material3.ExperimentalMaterial3Api"
+            freeCompilerArgs += listOf(
+                "-Xopt-in=androidx.compose.material3.ExperimentalMaterial3Api",
+                "-Xopt-in=androidx.compose.animation.ExperimentalAnimationApi")
         }
 
         dependencies {

@@ -5,5 +5,11 @@ import kotlinx.coroutines.flow.Flow
 
 internal interface DailyPictureRepository {
     suspend fun load()
-    fun observe(): Flow<Daily>
+    fun observe(): Flow<DailyResult>
+
+    sealed class DailyResult {
+        data class Loaded(val daily: Daily) : DailyResult()
+        object Loading : DailyResult()
+        object Error : DailyResult()
+    }
 }

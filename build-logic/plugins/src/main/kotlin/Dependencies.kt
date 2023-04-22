@@ -1,6 +1,7 @@
 object Dependencies {
 
     const val coil = "io.coil-kt:coil-compose:2.3.0"
+    const val datetime = "org.jetbrains.kotlinx:kotlinx-datetime:0.4.0"
 
     object Compose {
         const val compilerVersion = "1.3.2"
@@ -19,7 +20,18 @@ object Dependencies {
     const val mockk = "io.mockk:mockk:1.13.3"
     const val paparazzi = "app.cash.paparazzi:paparazzi-gradle-plugin:1.2.0"
 
+    object Retrofit {
+        private const val version = "2.9.0"
+
+        const val core = "com.squareup.retrofit2:retrofit:$version"
+        const val gson = "com.squareup.retrofit2:converter-gson:$version"
+        const val interceptor = "com.squareup.okhttp3:logging-interceptor:4.10.0"
+
+    }
+
     object Serialization {
         const val json = "org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1"
     }
+
+    const val shimmer = "com.valentinilk.shimmer:compose-shimmer:1.0.4"
 }

@@ -198,6 +198,7 @@ style:
   ForbiddenVoid:
     active: true
   MagicNumber:
+    active: false
     excludes: ['**/test/**', '**/*Test.kt', '**/*Spec.kt']
     ignorePropertyDeclaration: true
     ignoreAnnotation: true

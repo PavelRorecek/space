@@ -5,14 +5,14 @@ import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
 
-internal class LoadDailyUseCaseTest {
+internal class RequestDailyUseCaseTest {
 
     @Test
-    fun `should load daily via repository`() {
+    fun `should request daily via repository`() {
         val repository: DailyPictureRepository = mockk(relaxUnitFun = true)
-        val load = LoadDailyUseCase(repository)
+        val request = RequestDailyUseCase(repository)
 
-        runTest { load() }
+        runTest { request() }
 
         coVerify { repository.load() }
     }

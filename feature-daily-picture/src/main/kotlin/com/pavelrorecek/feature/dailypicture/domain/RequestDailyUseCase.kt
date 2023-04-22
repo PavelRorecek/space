@@ -1,6 +1,6 @@
 package com.pavelrorecek.feature.dailypicture.domain
 
-internal class LoadDailyUseCase(
+internal class RequestDailyUseCase(
     private val repository: DailyPictureRepository,
 ) {
 

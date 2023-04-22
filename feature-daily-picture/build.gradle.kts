@@ -13,6 +13,10 @@ dependencies {
     implementation(project(":core-design"))
     implementation(Dependencies.Serialization.json)
     implementation(Dependencies.coil)
+    implementation(Dependencies.datetime)
+    implementation(Dependencies.Retrofit.core)
+    implementation(Dependencies.Retrofit.gson)
+    implementation(Dependencies.Retrofit.interceptor)
 
     testImplementation(project(":core-test"))
 }
