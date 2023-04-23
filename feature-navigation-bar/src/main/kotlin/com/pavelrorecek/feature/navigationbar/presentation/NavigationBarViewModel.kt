@@ -3,16 +3,16 @@ package com.pavelrorecek.feature.navigationbar.presentation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pavelrorecek.core.navigation.domain.ObserveCurrentScreenUseCase
-import com.pavelrorecek.core.navigation.domain.StoreCurrentScreenUseCase
 import com.pavelrorecek.core.navigation.model.Screen.DAILY
 import com.pavelrorecek.core.navigation.model.Screen.LAUNCHES
+import com.pavelrorecek.feature.navigationbar.domain.NavigationBarNavigationController
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 internal class NavigationBarViewModel(
     observeCurrentScreen: ObserveCurrentScreenUseCase,
-    private val storeCurrentScreen: StoreCurrentScreenUseCase,
+    private val navigation: NavigationBarNavigationController,
     strings: NavigationBarStrings,
 ) : ViewModel() {
 
@@ -36,11 +36,11 @@ internal class NavigationBarViewModel(
     }
 
     fun onDaily() {
-        storeCurrentScreen(DAILY)
+        navigation.goToDaily()
     }
 
     fun onLaunches() {
-        storeCurrentScreen(LAUNCHES)
+        navigation.goToLaunches()
     }
 
     data class State(
