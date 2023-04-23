@@ -3,6 +3,7 @@ object Dependencies {
     object Accompanist {
         private const val version = "0.31.0-alpha"
 
+        const val navigation = "com.google.accompanist:accompanist-navigation-animation:$version"
         // Remove Accompanist swiperefresh once pullRefresh makes it into material3
         const val swiperefresh = "com.google.accompanist:accompanist-swiperefresh:$version"
         const val placeholder = "com.google.accompanist:accompanist-placeholder-material:$version"

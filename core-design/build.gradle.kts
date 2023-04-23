@@ -9,4 +9,5 @@ android {
 dependencies {
     api(Dependencies.Accompanist.placeholder)
     api(Dependencies.Accompanist.swiperefresh)
+    api(Dependencies.Accompanist.navigation)
 }

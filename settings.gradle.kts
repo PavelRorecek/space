@@ -19,5 +19,6 @@ rootProject.name = "Space"
 
 include(":app")
 include(":core-design")
+include(":core-navigation")
 include(":core-test")
 include(":feature-daily-picture")

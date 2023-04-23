@@ -1,6 +1,7 @@
 package com.pavelrorecek.app
 
 import android.app.Application
+import com.pavelrorecek.core.navigation.di.coreNavigationModule
 import com.pavelrorecek.feature.dailypicture.di.featureDailyPictureModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
@@ -15,7 +16,11 @@ public class MainApplication : Application() {
             androidLogger()
             androidContext(this@MainApplication)
 
-            modules(featureDailyPictureModule)
+            modules(
+                appModule,
+                coreNavigationModule,
+                featureDailyPictureModule,
+            )
         }
     }
 }
