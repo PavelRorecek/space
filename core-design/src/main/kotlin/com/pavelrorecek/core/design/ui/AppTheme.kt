@@ -1,4 +1,4 @@
-package com.pavelrorecek.core.design
+package com.pavelrorecek.core.design.ui
 
 import android.app.Activity
 import androidx.compose.material3.MaterialTheme

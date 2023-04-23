@@ -36,7 +36,7 @@ import com.google.accompanist.placeholder.material.placeholder
 import com.google.accompanist.placeholder.material.shimmer
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
-import com.pavelrorecek.core.design.BaseScreen
+import com.pavelrorecek.core.design.ui.BaseScreen
 import com.pavelrorecek.feature.dailyPicture.R
 import com.pavelrorecek.feature.dailypicture.presentation.DailyViewModel
 import com.pavelrorecek.feature.dailypicture.presentation.DailyViewModel.State.ExplanationState

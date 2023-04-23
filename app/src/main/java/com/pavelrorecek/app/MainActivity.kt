@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
@@ -23,7 +22,7 @@ import androidx.lifecycle.viewModelScope
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
-import com.pavelrorecek.core.design.AppTheme
+import com.pavelrorecek.core.design.ui.AppTheme
 import com.pavelrorecek.core.navigation.domain.ObserveCurrentScreenUseCase
 import com.pavelrorecek.core.navigation.domain.StoreCurrentScreenUseCase
 import com.pavelrorecek.core.navigation.model.Screen
@@ -31,6 +30,7 @@ import com.pavelrorecek.core.navigation.model.Screen.DAILY
 import com.pavelrorecek.core.navigation.model.Screen.LAUNCHES
 import com.pavelrorecek.feature.dailypicture.ui.DailyScreen
 import com.pavelrorecek.feature.navigationbar.ui.NavigationBar
+import com.pavelrorecek.feature.ui.LaunchesScreen
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
@@ -62,7 +62,7 @@ public class MainActivity : ComponentActivity() {
                         exitTransition = { ExitTransition.None },
                     ) {
                         composable(DAILY.name) { DailyScreen() }
-                        composable(LAUNCHES.name) { Text("Launches") }
+                        composable(LAUNCHES.name) { LaunchesScreen() }
                     }
                     NavigationBar(modifier = Modifier.fillMaxWidth())
 
