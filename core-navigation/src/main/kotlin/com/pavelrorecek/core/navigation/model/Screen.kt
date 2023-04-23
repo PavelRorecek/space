@@ -1,3 +1,3 @@
 package com.pavelrorecek.core.navigation.model
 
-public enum class Screen { DAILY, FLIGHTS }
+public enum class Screen { DAILY, LAUNCHES }

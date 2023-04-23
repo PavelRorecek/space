@@ -37,4 +37,5 @@ dependencies {
     implementation(project(":core-design"))
     implementation(project(":core-navigation"))
     implementation(project(":feature-daily-picture"))
+    implementation(project(":feature-navigation-bar"))
 }
