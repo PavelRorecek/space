@@ -19,14 +19,10 @@ dependencies {
     implementation(Dependencies.Retrofit.gson)
     implementation(Dependencies.Retrofit.interceptor)
 
-    // TODO
-    val room_version = "2.5.1"
-
-    implementation("androidx.room:room-runtime:$room_version")
-    annotationProcessor("androidx.room:room-compiler:$room_version")
-    ksp("androidx.room:room-compiler:$room_version")
-    implementation("androidx.room:room-ktx:$room_version")
-
+    implementation(Dependencies.Room.runtime)
+    annotationProcessor(Dependencies.Room.compiler)
+    ksp(Dependencies.Room.compiler)
+    implementation(Dependencies.Room.ktx)
 
     testImplementation(project(":core-test"))
 }

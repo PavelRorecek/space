@@ -4,6 +4,7 @@ object Dependencies {
         private const val version = "0.31.0-alpha"
 
         const val navigation = "com.google.accompanist:accompanist-navigation-animation:$version"
+
         // Remove Accompanist swiperefresh once pullRefresh makes it into material3
         const val swiperefresh = "com.google.accompanist:accompanist-swiperefresh:$version"
         const val placeholder = "com.google.accompanist:accompanist-placeholder-material:$version"
@@ -36,7 +37,14 @@ object Dependencies {
         const val core = "com.squareup.retrofit2:retrofit:$version"
         const val gson = "com.squareup.retrofit2:converter-gson:$version"
         const val interceptor = "com.squareup.okhttp3:logging-interceptor:4.10.0"
+    }
 
+    object Room {
+        private const val room_version = "2.5.1"
+
+        const val runtime = "androidx.room:room-runtime:$room_version"
+        const val compiler = "androidx.room:room-compiler:$room_version"
+        const val ktx = "androidx.room:room-ktx:$room_version"
     }
 
     object Serialization {
