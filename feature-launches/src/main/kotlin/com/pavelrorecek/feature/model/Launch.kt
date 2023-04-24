@@ -8,6 +8,7 @@ internal data class Launch(
     val livestreamUrl: String?,
     val wikipediaUrl: String?,
     val launch: Instant,
+    val isPinned: Boolean,
 ) {
 
     @JvmInline

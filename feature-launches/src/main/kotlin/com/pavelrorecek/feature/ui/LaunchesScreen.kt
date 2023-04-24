@@ -49,6 +49,7 @@ public fun LaunchesScreen() {
     DailyScreen(
         state = state,
         onRefresh = viewModel::onRefresh,
+        onUnpinAll = viewModel::onUnpinAll,
     )
 }
 
@@ -56,6 +57,7 @@ public fun LaunchesScreen() {
 internal fun DailyScreen(
     state: LaunchesViewModel.State,
     onRefresh: () -> Unit,
+    onUnpinAll: () -> Unit,
 ) {
     BaseScreen {
         SwipeRefresh(
@@ -80,7 +82,10 @@ internal fun DailyScreen(
                                 text = state.pinned.value,
                                 style = MaterialTheme.typography.titleLarge,
                             )
-                            Text(text = state.unpinAll.value)
+                            Text(
+                                modifier = Modifier.clickable(onClick = onUnpinAll),
+                                text = state.unpinAll.value,
+                            )
                         }
                         Spacer(modifier = Modifier.size(16.dp))
                         state.pinnedLaunches.forEach { launch ->
@@ -93,16 +98,13 @@ internal fun DailyScreen(
                     }
                 }
 
-                Row(
-                    modifier = Modifier.padding(horizontal = 32.dp),
-                ) {
-                    Text(
-                        modifier = Modifier.weight(1f),
-                        text = state.upcoming.value,
-                        style = MaterialTheme.typography.titleLarge,
-                    )
-                    Text(text = state.sortBy.value)
-                }
+                Text(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 32.dp),
+                    text = state.upcoming.value,
+                    style = MaterialTheme.typography.titleLarge,
+                )
                 Spacer(modifier = Modifier.size(16.dp))
 
                 val lazyListState = rememberLazyListState()
@@ -172,7 +174,11 @@ private fun LaunchItem(
                 )
             }
         }
-        if (launch.isPinned) PinnedBadge() else UnpinnedBadge()
+        if (launch.isPinned) {
+            PinnedBadge(onClick = launch.onPin)
+        } else {
+            UnpinnedBadge(onClick = launch.onPin)
+        }
     }
 }
 
@@ -238,23 +244,33 @@ private fun WikiButton(
 }
 
 @Composable
-private fun PinnedBadge() {
-    Badge(backgroundColor = Color(0xFFF1C543), pinColor = Color.White)
+private fun PinnedBadge(onClick: () -> Unit) {
+    Badge(
+        backgroundColor = Color(0xFFF1C543),
+        pinColor = Color.White,
+        onClick = onClick,
+    )
 }
 
 @Composable
-private fun UnpinnedBadge() {
-    Badge(backgroundColor = Color(0xFFF3F3F3), pinColor = Color(0xFF939393))
+private fun UnpinnedBadge(onClick: () -> Unit) {
+    Badge(
+        backgroundColor = Color(0xFFF3F3F3),
+        pinColor = Color(0xFF939393),
+        onClick = onClick,
+    )
 }
 
 @Composable
 private fun Badge(
     backgroundColor: Color,
     pinColor: Color,
+    onClick: () -> Unit,
 ) {
     Box(
         modifier = Modifier
             .clip(RoundedCornerShape(12.dp))
+            .clickable(onClick = onClick)
             .size(64.dp)
             .background(backgroundColor),
         contentAlignment = Alignment.Center,

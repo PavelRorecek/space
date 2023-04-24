@@ -4,12 +4,16 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pavelrorecek.core.design.ui.Label
 import com.pavelrorecek.core.design.ui.Title
+import com.pavelrorecek.feature.domain.DeleteAllPinnedLaunchesUseCase
+import com.pavelrorecek.feature.domain.DeletePinnedLaunchUseCase
 import com.pavelrorecek.feature.domain.LaunchesNavigationController
 import com.pavelrorecek.feature.domain.LaunchesRepository.LaunchesResult.Error
 import com.pavelrorecek.feature.domain.LaunchesRepository.LaunchesResult.Loaded
 import com.pavelrorecek.feature.domain.LaunchesRepository.LaunchesResult.Loading
 import com.pavelrorecek.feature.domain.ObserveLaunchesUseCase
+import com.pavelrorecek.feature.domain.ObservePinnedLaunchesUseCase
 import com.pavelrorecek.feature.domain.RequestLaunchesUseCase
+import com.pavelrorecek.feature.domain.StorePinnedLaunchUseCase
 import com.pavelrorecek.feature.model.Launch
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -22,6 +26,10 @@ import kotlinx.datetime.toLocalDateTime
 internal class LaunchesViewModel(
     private val requestLaunches: RequestLaunchesUseCase,
     observeLaunches: ObserveLaunchesUseCase,
+    observePinnedLaunches: ObservePinnedLaunchesUseCase,
+    private val storePinnedLaunch: StorePinnedLaunchUseCase,
+    private val deletePinnedLaunch: DeletePinnedLaunchUseCase,
+    private val deleteAllPinnedLaunches: DeleteAllPinnedLaunchesUseCase,
     private val strings: LaunchesStrings,
     private val navigation: LaunchesNavigationController,
 ) : ViewModel() {
@@ -35,18 +43,22 @@ internal class LaunchesViewModel(
     init {
         viewModelScope.launch { requestLaunches() }
         viewModelScope.launch {
+            observePinnedLaunches().collect { pinned ->
+                _state.value = _state.value.copy(
+                    isPinnedVisible = pinned.isNotEmpty(),
+                    pinned = Title(strings.pinned()),
+                    unpinAll = Label(strings.unpinAll()),
+                    pinnedLaunches = pinned.map(::toState),
+                )
+            }
+        }
+        viewModelScope.launch {
             observeLaunches().collect { result ->
                 _state.value = when (result) {
                     is Loaded -> {
                         val launches = result.launches.map(::toState)
-                        val mockPinned = launches.first().copy(isPinned = true) // TODO
-                        val pinned = launches.filter { it.isPinned } + mockPinned
 
-                        State(
-                            isPinnedVisible = pinned.isNotEmpty(),
-                            pinned = Title(strings.pinned()),
-                            unpinAll = Label(strings.unpinAll()),
-                            pinnedLaunches = pinned,
+                        _state.value.copy(
                             upcoming = Title(strings.upcoming()),
                             sortBy = Label(strings.sortBy()),
                             upcomingLaunches = launches,
@@ -69,6 +81,10 @@ internal class LaunchesViewModel(
         viewModelScope.launch { requestLaunches() }
     }
 
+    fun onUnpinAll() {
+        viewModelScope.launch { deleteAllPinnedLaunches() }
+    }
+
     private fun toState(model: Launch) = State.Launch(
         id = model.id,
         name = model.name.let(::Title),
@@ -79,7 +95,12 @@ internal class LaunchesViewModel(
         wiki = wiki,
         isWikiVisible = model.wikipediaUrl != null,
         onWiki = { model.wikipediaUrl?.let(navigation::openUrl) },
-        isPinned = false,
+        isPinned = model.isPinned,
+        onPin = {
+            viewModelScope.launch {
+                if (model.isPinned) deletePinnedLaunch(model.id) else storePinnedLaunch(model)
+            }
+        },
     )
 
     private fun formatLaunchIn(endTime: Instant): String {
@@ -121,6 +142,7 @@ internal class LaunchesViewModel(
             val isWikiVisible: Boolean,
             val onWiki: () -> Unit,
             val isPinned: Boolean,
+            val onPin: () -> Unit,
         )
     }
 }
