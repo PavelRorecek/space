@@ -4,8 +4,8 @@ import androidx.room.Room
 import com.pavelrorecek.feature.data.LaunchesApi
 import com.pavelrorecek.feature.data.LaunchesRepositoryImpl
 import com.pavelrorecek.feature.data.PinnedLaunchesDatabase
-import com.pavelrorecek.feature.domain.DeletePinnedLaunchUseCase
 import com.pavelrorecek.feature.domain.DeleteAllPinnedLaunchesUseCase
+import com.pavelrorecek.feature.domain.DeletePinnedLaunchUseCase
 import com.pavelrorecek.feature.domain.LaunchesRepository
 import com.pavelrorecek.feature.domain.ObserveLaunchesUseCase
 import com.pavelrorecek.feature.domain.ObservePinnedLaunchesUseCase
@@ -40,7 +40,8 @@ public val featureLaunchesModule: Module = module {
         retrofit.create(LaunchesApi::class.java)
     }
     factory {
-        Room.databaseBuilder(get(), PinnedLaunchesDatabase::class.java, "PinnedLaunchesDatabase").build()
+        Room.databaseBuilder(get(), PinnedLaunchesDatabase::class.java, "PinnedLaunchesDatabase")
+            .build()
     }
     factory { get<PinnedLaunchesDatabase>().pinnedLaunchesDao() }
     singleOf(::LaunchesRepositoryImpl) bind LaunchesRepository::class

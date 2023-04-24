@@ -7,4 +7,3 @@ import androidx.room.RoomDatabase
 internal abstract class PinnedLaunchesDatabase : RoomDatabase() {
     abstract fun pinnedLaunchesDao(): PinnedLaunchesDao
 }
-

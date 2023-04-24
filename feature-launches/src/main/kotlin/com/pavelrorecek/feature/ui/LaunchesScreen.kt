@@ -27,12 +27,15 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
@@ -59,6 +62,9 @@ internal fun DailyScreen(
     onRefresh: () -> Unit,
     onUnpinAll: () -> Unit,
 ) {
+    val configuration = LocalConfiguration.current
+    val launchWidth = remember(configuration) { configuration.screenWidthDp.dp - 64.dp }
+
     BaseScreen {
         SwipeRefresh(
             modifier = Modifier.fillMaxSize(),
@@ -88,11 +94,15 @@ internal fun DailyScreen(
                             )
                         }
                         Spacer(modifier = Modifier.size(16.dp))
-                        state.pinnedLaunches.forEach { launch ->
-                            LaunchItem(
-                                modifier = Modifier.fillMaxWidth(),
-                                launch = launch,
-                            )
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(24.dp),
+                        ) {
+                            state.pinnedLaunches.forEach { launch ->
+                                LaunchItem(
+                                    modifier = Modifier.width(launchWidth),
+                                    launch = launch,
+                                )
+                            }
                         }
                         Spacer(modifier = Modifier.size(64.dp))
                     }
@@ -112,13 +122,16 @@ internal fun DailyScreen(
                     state = lazyListState,
                     flingBehavior = rememberSnapFlingBehavior(lazyListState),
                     contentPadding = PaddingValues(horizontal = 32.dp),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp),
                 ) {
                     state.upcomingLaunches.chunked(2).forEach { column ->
                         item {
-                            Column {
+                            Column(
+                                verticalArrangement = Arrangement.spacedBy(24.dp),
+                            ) {
                                 column.forEach {
                                     LaunchItem(
-                                        modifier = Modifier.width(300.dp),
+                                        modifier = Modifier.width(launchWidth),
                                         launch = it,
                                     )
                                 }
@@ -153,10 +166,14 @@ private fun LaunchItem(
                         text = launch.name.value,
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.SemiBold,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
                     )
                     Text(
                         text = launch.launchIn.value,
                         style = MaterialTheme.typography.bodySmall,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
                     )
                 }
             }
@@ -174,6 +191,7 @@ private fun LaunchItem(
                 )
             }
         }
+        Spacer(modifier = Modifier.size(8.dp))
         if (launch.isPinned) {
             PinnedBadge(onClick = launch.onPin)
         } else {
