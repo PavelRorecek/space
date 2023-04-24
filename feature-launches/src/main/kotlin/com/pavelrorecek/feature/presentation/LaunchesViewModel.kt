@@ -16,6 +16,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 
 internal class LaunchesViewModel(
     private val requestLaunches: RequestLaunchesUseCase,
@@ -37,7 +39,8 @@ internal class LaunchesViewModel(
                 _state.value = when (result) {
                     is Loaded -> {
                         val launches = result.launches.map(::toState)
-                        val pinned = launches.filter { it.isPinned }
+                        val mockPinned = launches.first().copy(isPinned = true) // TODO
+                        val pinned = launches.filter { it.isPinned } + mockPinned
 
                         State(
                             isPinnedVisible = pinned.isNotEmpty(),
@@ -71,20 +74,29 @@ internal class LaunchesViewModel(
         name = model.name.let(::Title),
         launchIn = formatLaunchIn(model.launch).let(::Label),
         livestream = livestream,
+        isLivestreamVisible = model.livestreamUrl != null,
         onLiveStream = { model.livestreamUrl?.let(navigation::openUrl) },
         wiki = wiki,
+        isWikiVisible = model.wikipediaUrl != null,
         onWiki = { model.wikipediaUrl?.let(navigation::openUrl) },
         isPinned = false,
     )
 
     private fun formatLaunchIn(endTime: Instant): String {
         val duration = endTime - Clock.System.now()
-        val days = duration.inWholeDays
-        val hours = duration.inWholeHours % 24
-        val minutes = duration.inWholeMinutes % 60
-        val seconds = duration.inWholeSeconds % 60
 
-        return strings.launchIn(days, hours, minutes, seconds)
+        return if (duration.isPositive()) {
+            val days = duration.inWholeDays
+            val hours = duration.inWholeHours % 24
+            val minutes = duration.inWholeMinutes % 60
+            val seconds = duration.inWholeSeconds % 60
+
+            strings.launchIn(days, hours, minutes, seconds)
+        } else {
+            with(endTime.toLocalDateTime(TimeZone.currentSystemDefault())) {
+                strings.launchedOn("$dayOfMonth. $monthNumber. $year")
+            }
+        }
     }
 
     data class State(
@@ -103,8 +115,10 @@ internal class LaunchesViewModel(
             val name: Title,
             val launchIn: Label,
             val livestream: Label,
+            val isLivestreamVisible: Boolean,
             val onLiveStream: () -> Unit,
             val wiki: Label,
+            val isWikiVisible: Boolean,
             val onWiki: () -> Unit,
             val isPinned: Boolean,
         )

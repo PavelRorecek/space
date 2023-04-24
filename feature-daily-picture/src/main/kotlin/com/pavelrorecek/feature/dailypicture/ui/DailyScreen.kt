@@ -159,7 +159,11 @@ internal fun DailyScreen(
                         modifier = Modifier.fillMaxWidth(),
                         contentAlignment = Alignment.Center,
                     ) {
-                        Text(text = state.errorMessage, textAlign = TextAlign.Center)
+                        Text(
+                            text = state.errorMessage,
+                            textAlign = TextAlign.Center,
+                            style = MaterialTheme.typography.bodyMedium,
+                        )
                     }
                 }
             }
@@ -172,13 +176,16 @@ internal fun Explanation(title: String, explanationState: ExplanationState) {
     Column {
         Text(
             text = title,
-            fontSize = 32.sp,
+            style = MaterialTheme.typography.headlineLarge,
         )
         Spacer(modifier = Modifier.size(8.dp))
         Crossfade(targetState = explanationState, label = "Explanation") { state ->
             when (state) {
                 is ExplanationState.Explanation -> {
-                    Text(text = state.content)
+                    Text(
+                        text = state.content,
+                        style = MaterialTheme.typography.bodyLarge,
+                    )
                 }
 
                 is ExplanationState.Shimmer -> {

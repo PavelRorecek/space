@@ -19,8 +19,6 @@ dependencies {
     implementation(Dependencies.Retrofit.gson)
     implementation(Dependencies.Retrofit.interceptor)
 
-    implementation("dev.chrisbanes.snapper:snapper:0.3.0")
-
     // TODO
     val room_version = "2.5.1"
 
