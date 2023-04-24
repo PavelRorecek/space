@@ -1,10 +1,6 @@
 import com.android.build.api.dsl.CommonExtension
 import org.gradle.api.JavaVersion
 import org.gradle.api.Project
-import org.gradle.jvm.toolchain.JavaLanguageVersion
-import org.gradle.jvm.toolchain.JavaToolchainService
-import org.gradle.kotlin.dsl.getByType
-import org.jetbrains.kotlin.gradle.tasks.UsesKotlinJavaToolchain
 
 internal fun Project.configureKotlinAndroid(
     commonExtension: CommonExtension<*, *, *, *>,
@@ -24,6 +20,7 @@ internal fun Project.configureKotlinAndroid(
         kotlinOptions {
             freeCompilerArgs += listOf(
                 "-opt-in=kotlinx.coroutines.ExperimentalCoroutinesApi",
+                "-opt-in=kotlin.time.ExperimentalTime", // TODO move
                 "-Xexplicit-api=strict",
             )
         }

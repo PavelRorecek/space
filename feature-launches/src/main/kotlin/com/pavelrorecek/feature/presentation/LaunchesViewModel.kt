@@ -14,11 +14,13 @@ import com.pavelrorecek.feature.model.Launch
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
 
 internal class LaunchesViewModel(
     private val requestLaunches: RequestLaunchesUseCase,
     observeLaunches: ObserveLaunchesUseCase,
-    strings: LaunchesStrings,
+    private val strings: LaunchesStrings,
     private val navigation: LaunchesNavigationController,
 ) : ViewModel() {
 
@@ -67,13 +69,23 @@ internal class LaunchesViewModel(
     private fun toState(model: Launch) = State.Launch(
         id = model.id,
         name = model.name.let(::Title),
-        launchIn = "TODO".let(::Label), // TODO
+        launchIn = formatLaunchIn(model.launch).let(::Label),
         livestream = livestream,
         onLiveStream = { model.livestreamUrl?.let(navigation::openUrl) },
         wiki = wiki,
         onWiki = { model.wikipediaUrl?.let(navigation::openUrl) },
         isPinned = false,
     )
+
+    private fun formatLaunchIn(endTime: Instant): String {
+        val duration = endTime - Clock.System.now()
+        val days = duration.inWholeDays
+        val hours = duration.inWholeHours % 24
+        val minutes = duration.inWholeMinutes % 60
+        val seconds = duration.inWholeSeconds % 60
+
+        return strings.launchIn(days, hours, minutes, seconds)
+    }
 
     data class State(
         val isPinnedVisible: Boolean = false,

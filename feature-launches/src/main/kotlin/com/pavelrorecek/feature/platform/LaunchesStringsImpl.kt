@@ -8,6 +8,9 @@ internal class LaunchesStringsImpl(
     private val context: Context,
 ) : LaunchesStrings {
 
+    override fun launchIn(days: Long, hours: Long, minutes: Long, seconds: Long) =
+        context.getString(R.string.launches_launch_in, days, hours, minutes, seconds)
+
     override fun livestream() = context.getString(R.string.launches_livestream)
     override fun pinned() = context.getString(R.string.launches_pinned)
     override fun sortBy() = context.getString(R.string.launches_sort_by)

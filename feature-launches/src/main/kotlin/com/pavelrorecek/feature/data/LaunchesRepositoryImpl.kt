@@ -7,6 +7,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.datetime.Instant
 
 internal class LaunchesRepositoryImpl(
     private val api: LaunchesApi,
@@ -22,14 +23,17 @@ internal class LaunchesRepositoryImpl(
         }
 
         launches.value = dtos
+            ?.filter { it.upcoming }
             ?.map { dto ->
                 Launch(
                     id = dto.id.let(Launch::Id),
                     name = dto.name,
                     livestreamUrl = dto.links?.webcast,
                     wikipediaUrl = dto.links?.wikipedia,
+                    launch = Instant.fromEpochSeconds(dto.dateUnix)
                 )
             }
+            ?.sortedByDescending { it.launch }
             ?.let(LaunchesResult::Loaded)
             ?: LaunchesResult.Error
     }
