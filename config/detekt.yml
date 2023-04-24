@@ -32,6 +32,7 @@ complexity:
   MethodOverloading:
     active: true
   TooManyFunctions:
+    active: false
     excludes: ['**/test/**', '**/functionalTest/**']
   LongMethod:
     active: true

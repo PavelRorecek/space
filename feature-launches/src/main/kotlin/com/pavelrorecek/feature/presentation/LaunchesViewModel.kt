@@ -63,15 +63,23 @@ internal class LaunchesViewModel(
                     is Loaded -> {
                         _state.value.copy(
                             upcomingLaunches = result.launches.map(::toState),
+                            isUpcomingLaunchesLoadingVisible = false,
+                            isUpcomingLaunchesVisible = true,
                         )
                     }
 
                     is Loading -> {
-                        _state.value // TODO
+                        _state.value.copy(
+                            isUpcomingLaunchesLoadingVisible = true,
+                            isUpcomingLaunchesVisible = false,
+                        )
                     }
 
                     is Error -> {
-                        _state.value // TODO
+                        _state.value.copy(
+                            isUpcomingLaunchesLoadingVisible = false,
+                            isUpcomingLaunchesVisible = false,
+                        )
                     }
                 }
             }
@@ -151,6 +159,8 @@ internal class LaunchesViewModel(
 
         val upcoming: Title,
         val upcomingLaunches: List<Launch> = emptyList(),
+        val isUpcomingLaunchesVisible: Boolean = false,
+        val isUpcomingLaunchesLoadingVisible: Boolean = true,
     ) {
 
         data class Launch(

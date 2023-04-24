@@ -40,6 +40,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.google.accompanist.placeholder.PlaceholderHighlight
+import com.google.accompanist.placeholder.material.placeholder
+import com.google.accompanist.placeholder.material.shimmer
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.pavelrorecek.core.design.ui.BaseScreen
@@ -120,30 +123,38 @@ internal fun DailyScreen(
                     style = MaterialTheme.typography.titleLarge,
                 )
                 Spacer(modifier = Modifier.size(16.dp))
-                val lazyListState = rememberLazyListState()
-                LazyRow(
-                    state = lazyListState,
-                    flingBehavior = rememberSnapFlingBehavior(lazyListState),
-                    contentPadding = PaddingValues(horizontal = 32.dp),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp),
-                ) {
-                    state.upcomingLaunches.chunked(2).forEach { column ->
-                        item {
-                            Column(
-                                verticalArrangement = Arrangement.spacedBy(24.dp),
-                            ) {
-                                column.forEach {
-                                    LaunchItem(
-                                        modifier = Modifier.width(launchWidth),
-                                        launch = it,
-                                        onLiveStream = onLiveStream,
-                                        onWiki = onWiki,
-                                        onPin = onPin,
-                                    )
+                if (state.isUpcomingLaunchesVisible) {
+                    val lazyListState = rememberLazyListState()
+                    LazyRow(
+                        state = lazyListState,
+                        flingBehavior = rememberSnapFlingBehavior(lazyListState),
+                        contentPadding = PaddingValues(horizontal = 32.dp),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp),
+                    ) {
+                        state.upcomingLaunches.chunked(2).forEach { column ->
+                            item {
+                                Column(
+                                    verticalArrangement = Arrangement.spacedBy(24.dp),
+                                ) {
+                                    column.forEach {
+                                        LaunchItem(
+                                            modifier = Modifier.width(launchWidth),
+                                            launch = it,
+                                            onLiveStream = onLiveStream,
+                                            onWiki = onWiki,
+                                            onPin = onPin,
+                                        )
+                                    }
                                 }
                             }
                         }
                     }
+                }
+                if (state.isUpcomingLaunchesLoadingVisible) {
+                    LoadingLaunches(
+                        modifier = Modifier.padding(horizontal = 32.dp),
+                        launchWidth = launchWidth,
+                    )
                 }
             }
         }
@@ -248,6 +259,86 @@ private fun LaunchItem(
         } else {
             UnpinnedBadge(onClick = { onPin(launch.id) })
         }
+    }
+}
+
+@Composable
+private fun LoadingLaunches(modifier: Modifier, launchWidth: Dp) {
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(24.dp),
+    ) {
+        repeat(2) {
+            LoadingLaunch(
+                modifier = Modifier.width(launchWidth),
+            )
+        }
+    }
+}
+
+@Composable
+private fun LoadingLaunch(modifier: Modifier) {
+    Row(modifier.height(86.dp)) {
+        Column(Modifier.weight(1f)) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Box(
+                    modifier = Modifier
+                        .clip(CircleShape)
+                        .size(48.dp)
+                        .placeholder(
+                            visible = true,
+                            highlight = PlaceholderHighlight.shimmer(),
+                        ),
+                )
+                Spacer(modifier = Modifier.size(8.dp))
+                Column {
+                    Box(
+                        modifier = Modifier
+                            .height(24.dp)
+                            .width(48.dp)
+                            .placeholder(
+                                visible = true,
+                                highlight = PlaceholderHighlight.shimmer(),
+                            ),
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Box(
+                        modifier = Modifier
+                            .height(12.dp)
+                            .width(102.dp)
+                            .placeholder(
+                                visible = true,
+                                highlight = PlaceholderHighlight.shimmer(),
+                            ),
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.size(8.dp))
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                repeat(2) {
+                    Box(
+                        modifier = Modifier
+                            .height(24.dp)
+                            .width(86.dp)
+                            .placeholder(
+                                visible = true,
+                                highlight = PlaceholderHighlight.shimmer(),
+                            ),
+                    )
+                }
+            }
+        }
+        Box(
+            modifier = Modifier
+                .clip(RoundedCornerShape(12.dp))
+                .size(64.dp)
+                .placeholder(
+                    visible = true,
+                    highlight = PlaceholderHighlight.shimmer(),
+                ),
+        )
     }
 }
 
