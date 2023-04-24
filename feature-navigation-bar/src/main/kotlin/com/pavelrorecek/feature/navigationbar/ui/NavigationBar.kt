@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.BottomAppBar
+import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -28,14 +29,17 @@ import com.pavelrorecek.feature.navigationBar.R
 import com.pavelrorecek.feature.navigationbar.presentation.NavigationBarViewModel
 import org.koin.androidx.compose.koinViewModel
 
+private val ColorScheme.navigationBarBackground get() = Color.White
+
 @Composable
 public fun NavigationBar(modifier: Modifier) {
     val viewModel: NavigationBarViewModel = koinViewModel()
     val state = viewModel.state.collectAsState().value
 
-    // TODO bg color
     BottomAppBar(
         modifier = modifier,
+        containerColor = MaterialTheme.colorScheme.navigationBarBackground,
+        contentColor = MaterialTheme.colorScheme.onBackground,
     ) {
         Row(
             modifier = Modifier

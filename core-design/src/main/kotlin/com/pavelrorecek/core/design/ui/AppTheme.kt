@@ -15,7 +15,7 @@ private val gray = Color(0xFF383838)
 private val colorScheme = lightColorScheme(
     primary = gray,
     onPrimary = Color.White,
-    background = Color.White,
+    background = Color(0xFFF8F8F8),
     onBackground = gray,
 )
 
