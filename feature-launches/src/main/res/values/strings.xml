@@ -1,7 +1,6 @@
 <resources>
     <string name="launches.livestream">Livestream</string>
     <string name="launches.pinned">Pinned</string>
-    <string name="launches.sort_by">Sort by</string>
     <string name="launches.unpin_all">Unpin all</string>
     <string name="launches.upcoming">Upcoming</string>
     <string name="launches.wiki">Wiki</string>

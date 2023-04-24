@@ -35,7 +35,13 @@ internal class LaunchesViewModel(
     private val navigation: LaunchesNavigationController,
 ) : ViewModel() {
 
-    private val _state: MutableStateFlow<State> = MutableStateFlow(State())
+    private val _state: MutableStateFlow<State> = MutableStateFlow(
+        State(
+            upcoming = Title(strings.upcoming()),
+            pinned = Title(strings.pinned()),
+            unpinAll = Label(strings.unpinAll()),
+        ),
+    )
     val state: StateFlow<State> = _state
 
     private val livestream: Label = strings.livestream().let(::Label)
@@ -47,8 +53,6 @@ internal class LaunchesViewModel(
             observePinnedLaunches().collect { pinned ->
                 _state.value = _state.value.copy(
                     isPinnedVisible = pinned.isNotEmpty(),
-                    pinned = Title(strings.pinned()),
-                    unpinAll = Label(strings.unpinAll()),
                     pinnedLaunches = pinned.map(::toState),
                 )
             }
@@ -57,12 +61,8 @@ internal class LaunchesViewModel(
             observeLaunches().collect { result ->
                 _state.value = when (result) {
                     is Loaded -> {
-                        val launches = result.launches.map(::toState)
-
                         _state.value.copy(
-                            upcoming = Title(strings.upcoming()),
-                            sortBy = Label(strings.sortBy()),
-                            upcomingLaunches = launches,
+                            upcomingLaunches = result.launches.map(::toState),
                         )
                     }
 
@@ -145,12 +145,11 @@ internal class LaunchesViewModel(
 
     data class State(
         val isPinnedVisible: Boolean = false,
-        val pinned: Title = Title(""),
-        val unpinAll: Label = Label(""),
+        val pinned: Title,
+        val unpinAll: Label,
         val pinnedLaunches: List<Launch> = emptyList(),
 
-        val upcoming: Title = Title(""),
-        val sortBy: Label = Label(""),
+        val upcoming: Title,
         val upcomingLaunches: List<Launch> = emptyList(),
     ) {
 

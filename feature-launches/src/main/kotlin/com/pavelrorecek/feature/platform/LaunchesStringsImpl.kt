@@ -14,7 +14,6 @@ internal class LaunchesStringsImpl(
     override fun launchedOn(date: String) = context.getString(R.string.launches_launched_on, date)
     override fun livestream() = context.getString(R.string.launches_livestream)
     override fun pinned() = context.getString(R.string.launches_pinned)
-    override fun sortBy() = context.getString(R.string.launches_sort_by)
     override fun unpinAll() = context.getString(R.string.launches_unpin_all)
     override fun upcoming() = context.getString(R.string.launches_upcoming)
     override fun wiki() = context.getString(R.string.launches_wiki)

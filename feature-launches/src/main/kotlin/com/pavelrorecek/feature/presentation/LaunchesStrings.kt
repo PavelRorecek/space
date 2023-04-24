@@ -5,7 +5,6 @@ internal interface LaunchesStrings {
     fun launchedOn(date: String): String
     fun livestream(): String
     fun pinned(): String
-    fun sortBy(): String
     fun unpinAll(): String
     fun upcoming(): String
     fun wiki(): String
