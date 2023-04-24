@@ -10,13 +10,13 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
-private val gray = Color(0xFF383838)
+private val darkGray = Color(0xFF383838)
 
 private val colorScheme = lightColorScheme(
-    primary = gray,
+    primary = darkGray,
     onPrimary = Color.White,
     background = Color(0xFFF8F8F8),
-    onBackground = gray,
+    onBackground = darkGray,
 )
 
 @Composable
