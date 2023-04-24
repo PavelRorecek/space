@@ -20,7 +20,7 @@ internal fun Project.configureKotlinAndroid(
         kotlinOptions {
             freeCompilerArgs += listOf(
                 "-opt-in=kotlinx.coroutines.ExperimentalCoroutinesApi",
-                "-opt-in=kotlin.time.ExperimentalTime", // TODO move
+                "-opt-in=kotlin.time.ExperimentalTime",
                 "-Xexplicit-api=strict",
             )
         }

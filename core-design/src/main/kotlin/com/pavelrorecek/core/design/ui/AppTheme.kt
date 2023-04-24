@@ -12,7 +12,6 @@ import androidx.core.view.WindowCompat
 
 private val gray = Color(0xFF383838)
 
-// TODO check dark mode
 private val colorScheme = lightColorScheme(
     primary = gray,
     onPrimary = Color.White,
