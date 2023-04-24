@@ -189,15 +189,19 @@ private fun PinnedLaunches(
     onPin: (Launch.Id) -> Unit,
 ) {
     Column(modifier) {
-        Row {
+        Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
                 modifier = Modifier.weight(1f),
                 text = pinned.value,
                 style = MaterialTheme.typography.titleLarge,
             )
             Text(
-                modifier = Modifier.clickable(onClick = onUnpinAll),
+                modifier = Modifier
+                    .clip(RoundedCornerShape(4.dp))
+                    .clickable(onClick = onUnpinAll)
+                    .padding(8.dp),
                 text = unpinAll.value,
+                style = MaterialTheme.typography.labelSmall,
             )
         }
         Spacer(modifier = Modifier.size(16.dp))
