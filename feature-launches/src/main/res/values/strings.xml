@@ -6,4 +6,5 @@
     <string name="launches.wiki">Wiki</string>
     <string name="launches.launch_in">Launch in %dd %dh %dm %ds</string>
     <string name="launches.launched_on">Launched on %s</string>
+    <string name="launches.loading_error">Loading launches has failed.\nPlease try again.</string>
 </resources>

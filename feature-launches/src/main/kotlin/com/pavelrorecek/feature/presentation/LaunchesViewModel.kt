@@ -40,6 +40,7 @@ internal class LaunchesViewModel(
             upcoming = Title(strings.upcoming()),
             pinned = Title(strings.pinned()),
             unpinAll = Label(strings.unpinAll()),
+            error = Label(strings.loadingError()),
         ),
     )
     val state: StateFlow<State> = _state
@@ -65,6 +66,7 @@ internal class LaunchesViewModel(
                             upcomingLaunches = result.launches.map(::toState),
                             isUpcomingLaunchesLoadingVisible = false,
                             isUpcomingLaunchesVisible = true,
+                            isErrorVisible = false,
                         )
                     }
 
@@ -72,6 +74,7 @@ internal class LaunchesViewModel(
                         _state.value.copy(
                             isUpcomingLaunchesLoadingVisible = true,
                             isUpcomingLaunchesVisible = false,
+                            isErrorVisible = false,
                         )
                     }
 
@@ -79,6 +82,7 @@ internal class LaunchesViewModel(
                         _state.value.copy(
                             isUpcomingLaunchesLoadingVisible = false,
                             isUpcomingLaunchesVisible = false,
+                            isErrorVisible = true,
                         )
                     }
                 }
@@ -161,6 +165,9 @@ internal class LaunchesViewModel(
         val upcomingLaunches: List<Launch> = emptyList(),
         val isUpcomingLaunchesVisible: Boolean = false,
         val isUpcomingLaunchesLoadingVisible: Boolean = true,
+
+        val error: Label,
+        val isErrorVisible: Boolean = false,
     ) {
 
         data class Launch(
