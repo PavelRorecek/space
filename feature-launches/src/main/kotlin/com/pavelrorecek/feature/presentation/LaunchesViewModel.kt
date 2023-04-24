@@ -17,6 +17,7 @@ import com.pavelrorecek.feature.domain.StorePinnedLaunchUseCase
 import com.pavelrorecek.feature.model.Launch
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
@@ -25,7 +26,7 @@ import kotlinx.datetime.toLocalDateTime
 
 internal class LaunchesViewModel(
     private val requestLaunches: RequestLaunchesUseCase,
-    observeLaunches: ObserveLaunchesUseCase,
+    private val observeLaunches: ObserveLaunchesUseCase,
     observePinnedLaunches: ObservePinnedLaunchesUseCase,
     private val storePinnedLaunch: StorePinnedLaunchUseCase,
     private val deletePinnedLaunch: DeletePinnedLaunchUseCase,
@@ -85,22 +86,44 @@ internal class LaunchesViewModel(
         viewModelScope.launch { deleteAllPinnedLaunches() }
     }
 
+    fun onLiveStream(id: Launch.Id) {
+        viewModelScope.launch {
+            (observeLaunches().first() as Loaded).launches.firstOrNull { it.id == id }
+                ?.livestreamUrl
+                ?.let(navigation::openUrl)
+        }
+    }
+
+    fun onWiki(id: Launch.Id) {
+        viewModelScope.launch {
+            (observeLaunches().first() as Loaded).launches.firstOrNull { it.id == id }
+                ?.wikipediaUrl
+                ?.let(navigation::openUrl)
+        }
+    }
+
+    fun onPin(id: Launch.Id) {
+        viewModelScope.launch {
+            val launch = (observeLaunches().first() as Loaded).launches.firstOrNull { it.id == id }
+
+            when (launch?.isPinned) {
+                true -> deletePinnedLaunch(id)
+                false -> storePinnedLaunch(launch)
+                null -> { /* pass */
+                }
+            }
+        }
+    }
+
     private fun toState(model: Launch) = State.Launch(
         id = model.id,
         name = model.name.let(::Title),
         launchIn = formatLaunchIn(model.launch).let(::Label),
         livestream = livestream,
         isLivestreamVisible = model.livestreamUrl != null,
-        onLiveStream = { model.livestreamUrl?.let(navigation::openUrl) },
         wiki = wiki,
         isWikiVisible = model.wikipediaUrl != null,
-        onWiki = { model.wikipediaUrl?.let(navigation::openUrl) },
         isPinned = model.isPinned,
-        onPin = {
-            viewModelScope.launch {
-                if (model.isPinned) deletePinnedLaunch(model.id) else storePinnedLaunch(model)
-            }
-        },
     )
 
     private fun formatLaunchIn(endTime: Instant): String {
@@ -137,12 +160,9 @@ internal class LaunchesViewModel(
             val launchIn: Label,
             val livestream: Label,
             val isLivestreamVisible: Boolean,
-            val onLiveStream: () -> Unit,
             val wiki: Label,
             val isWikiVisible: Boolean,
-            val onWiki: () -> Unit,
             val isPinned: Boolean,
-            val onPin: () -> Unit,
         )
     }
 }

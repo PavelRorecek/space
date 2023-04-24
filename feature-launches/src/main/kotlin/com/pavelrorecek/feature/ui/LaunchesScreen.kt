@@ -1,5 +1,6 @@
 package com.pavelrorecek.feature.ui
 
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
@@ -21,6 +22,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
@@ -36,13 +38,25 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.pavelrorecek.core.design.ui.BaseScreen
+import com.pavelrorecek.core.design.ui.Label
+import com.pavelrorecek.core.design.ui.Title
 import com.pavelrorecek.feature.dailyPicture.R
+import com.pavelrorecek.feature.model.Launch
 import com.pavelrorecek.feature.presentation.LaunchesViewModel
 import org.koin.androidx.compose.koinViewModel
+
+private val ColorScheme.disabledWikiTint get() = Color(0xFFC5C5C5)
+private val ColorScheme.pinnedBadgeBackground get() = Color(0xFFF1C543)
+private val ColorScheme.pinnedBadgePinColor get() = Color.White
+private val ColorScheme.unpinnedBadgeBackground get() = Color(0xFFF3F3F3)
+private val ColorScheme.unpinnedBadgePinColor get() = Color(0xFF939393)
+private val ColorScheme.disabledLivestreamBackground get() = Color(0xFF8B8B8B)
+private val ColorScheme.enabledLivestreamBackground get() = Color(0xFFEE807D)
 
 @Composable
 public fun LaunchesScreen() {
@@ -53,6 +67,9 @@ public fun LaunchesScreen() {
         state = state,
         onRefresh = viewModel::onRefresh,
         onUnpinAll = viewModel::onUnpinAll,
+        onLiveStream = viewModel::onLiveStream,
+        onWiki = viewModel::onWiki,
+        onPin = viewModel::onPin,
     )
 }
 
@@ -61,6 +78,9 @@ internal fun DailyScreen(
     state: LaunchesViewModel.State,
     onRefresh: () -> Unit,
     onUnpinAll: () -> Unit,
+    onLiveStream: (Launch.Id) -> Unit,
+    onWiki: (Launch.Id) -> Unit,
+    onPin: (Launch.Id) -> Unit,
 ) {
     val configuration = LocalConfiguration.current
     val launchWidth = remember(configuration) { configuration.screenWidthDp.dp - 64.dp }
@@ -73,41 +93,25 @@ internal fun DailyScreen(
         ) {
             Column(
                 modifier = Modifier
+                    .padding(top = 32.dp)
                     .fillMaxSize()
                     .verticalScroll(rememberScrollState()),
             ) {
-                Column(
-                    modifier = Modifier
-                        .padding(horizontal = 32.dp)
-                        .padding(top = 32.dp),
-                ) {
-                    if (state.isPinnedVisible) {
-                        Row {
-                            Text(
-                                modifier = Modifier.weight(1f),
-                                text = state.pinned.value,
-                                style = MaterialTheme.typography.titleLarge,
-                            )
-                            Text(
-                                modifier = Modifier.clickable(onClick = onUnpinAll),
-                                text = state.unpinAll.value,
-                            )
-                        }
-                        Spacer(modifier = Modifier.size(16.dp))
-                        Column(
-                            verticalArrangement = Arrangement.spacedBy(24.dp),
-                        ) {
-                            state.pinnedLaunches.forEach { launch ->
-                                LaunchItem(
-                                    modifier = Modifier.width(launchWidth),
-                                    launch = launch,
-                                )
-                            }
-                        }
-                        Spacer(modifier = Modifier.size(64.dp))
-                    }
+                if (state.isPinnedVisible) {
+                    PinnedLaunches(
+                        modifier = Modifier
+                            .padding(horizontal = 32.dp),
+                        launchWidth = launchWidth,
+                        pinned = state.pinned,
+                        unpinAll = state.unpinAll,
+                        onUnpinAll = onUnpinAll,
+                        pinnedLaunches = state.pinnedLaunches,
+                        onLiveStream = onLiveStream,
+                        onWiki = onWiki,
+                        onPin = onPin,
+                    )
+                    Spacer(modifier = Modifier.size(64.dp))
                 }
-
                 Text(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -116,7 +120,6 @@ internal fun DailyScreen(
                     style = MaterialTheme.typography.titleLarge,
                 )
                 Spacer(modifier = Modifier.size(16.dp))
-
                 val lazyListState = rememberLazyListState()
                 LazyRow(
                     state = lazyListState,
@@ -133,6 +136,9 @@ internal fun DailyScreen(
                                     LaunchItem(
                                         modifier = Modifier.width(launchWidth),
                                         launch = it,
+                                        onLiveStream = onLiveStream,
+                                        onWiki = onWiki,
+                                        onPin = onPin,
                                     )
                                 }
                             }
@@ -145,9 +151,54 @@ internal fun DailyScreen(
 }
 
 @Composable
+private fun PinnedLaunches(
+    modifier: Modifier,
+    launchWidth: Dp,
+    pinned: Title,
+    unpinAll: Label,
+    pinnedLaunches: List<LaunchesViewModel.State.Launch>,
+    onUnpinAll: () -> Unit,
+    onLiveStream: (Launch.Id) -> Unit,
+    onWiki: (Launch.Id) -> Unit,
+    onPin: (Launch.Id) -> Unit,
+) {
+    Column(modifier) {
+        Row {
+            Text(
+                modifier = Modifier.weight(1f),
+                text = pinned.value,
+                style = MaterialTheme.typography.titleLarge,
+            )
+            Text(
+                modifier = Modifier.clickable(onClick = onUnpinAll),
+                text = unpinAll.value,
+            )
+        }
+        Spacer(modifier = Modifier.size(16.dp))
+        Column(
+            modifier = Modifier.animateContentSize(),
+            verticalArrangement = Arrangement.spacedBy(24.dp),
+        ) {
+            pinnedLaunches.forEach { launch ->
+                LaunchItem(
+                    modifier = Modifier.width(launchWidth),
+                    launch = launch,
+                    onLiveStream = onLiveStream,
+                    onWiki = onWiki,
+                    onPin = onPin,
+                )
+            }
+        }
+    }
+}
+
+@Composable
 private fun LaunchItem(
     modifier: Modifier,
     launch: LaunchesViewModel.State.Launch,
+    onLiveStream: (Launch.Id) -> Unit,
+    onWiki: (Launch.Id) -> Unit,
+    onPin: (Launch.Id) -> Unit,
 ) {
     Row(modifier.height(86.dp)) {
         Column(Modifier.weight(1f)) {
@@ -181,21 +232,21 @@ private fun LaunchItem(
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 LivestreamButton(
                     label = launch.livestream.value,
-                    onClick = launch.onLiveStream,
+                    onClick = { onLiveStream(launch.id) },
                     enabled = launch.isLivestreamVisible,
                 )
                 WikiButton(
                     label = launch.wiki.value,
-                    onClick = launch.onWiki,
+                    onClick = { onWiki(launch.id) },
                     enabled = launch.isWikiVisible,
                 )
             }
         }
         Spacer(modifier = Modifier.size(8.dp))
         if (launch.isPinned) {
-            PinnedBadge(onClick = launch.onPin)
+            PinnedBadge(onClick = { onPin(launch.id) })
         } else {
-            UnpinnedBadge(onClick = launch.onPin)
+            UnpinnedBadge(onClick = { onPin(launch.id) })
         }
     }
 }
@@ -206,7 +257,11 @@ private fun LivestreamButton(
     onClick: () -> Unit,
     enabled: Boolean,
 ) {
-    val background = if (enabled) Color(0xFFEE807D) else Color(0xFF8B8B8B)
+    val background = if (enabled) {
+        MaterialTheme.colorScheme.enabledLivestreamBackground
+    } else {
+        MaterialTheme.colorScheme.disabledLivestreamBackground
+    }
 
     Box(
         modifier = Modifier
@@ -237,7 +292,7 @@ private fun WikiButton(
     onClick: () -> Unit,
     enabled: Boolean,
 ) {
-    val disabledTint = Color(0xFF8B8B8B)
+    val disabledTint = MaterialTheme.colorScheme.disabledWikiTint
 
     Box(
         modifier = Modifier
@@ -264,8 +319,8 @@ private fun WikiButton(
 @Composable
 private fun PinnedBadge(onClick: () -> Unit) {
     Badge(
-        backgroundColor = Color(0xFFF1C543),
-        pinColor = Color.White,
+        backgroundColor = MaterialTheme.colorScheme.pinnedBadgeBackground,
+        pinColor = MaterialTheme.colorScheme.pinnedBadgePinColor,
         onClick = onClick,
     )
 }
@@ -273,8 +328,8 @@ private fun PinnedBadge(onClick: () -> Unit) {
 @Composable
 private fun UnpinnedBadge(onClick: () -> Unit) {
     Badge(
-        backgroundColor = Color(0xFFF3F3F3),
-        pinColor = Color(0xFF939393),
+        backgroundColor = MaterialTheme.colorScheme.unpinnedBadgeBackground,
+        pinColor = MaterialTheme.colorScheme.unpinnedBadgePinColor,
         onClick = onClick,
     )
 }

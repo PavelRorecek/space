@@ -57,7 +57,7 @@ internal class LaunchesRepositoryImpl(
         isPinned = true,
     )
 
-    private fun toEntitiy(model: Launch) = PinnedLaunchEo(
+    private fun toEntity(model: Launch) = PinnedLaunchEo(
         id = model.id.value,
         name = model.name,
         livestreamUrl = model.livestreamUrl,
@@ -71,7 +71,7 @@ internal class LaunchesRepositoryImpl(
 
     override suspend fun storePinned(launch: Launch) {
         withContext(Dispatchers.IO) {
-            pinnedDao.store(toEntitiy(launch))
+            pinnedDao.store(toEntity(launch))
         }
         refreshPinned()
     }
