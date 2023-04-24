@@ -58,7 +58,7 @@ public class MainActivity : ComponentActivity() {
                             .fillMaxWidth()
                             .weight(1f),
                         navController = navController,
-                        startDestination = LAUNCHES.name,
+                        startDestination = DAILY.name,
                         enterTransition = { EnterTransition.None },
                         exitTransition = { ExitTransition.None },
                     ) {
