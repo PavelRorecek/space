@@ -1,101 +1,93 @@
 package com.pavelrorecek.feature.presentation
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.pavelrorecek.core.design.ui.Label
 import com.pavelrorecek.core.design.ui.Title
 import com.pavelrorecek.feature.domain.LaunchesNavigationController
-import com.pavelrorecek.feature.presentation.LaunchesViewModel.State.Launch
+import com.pavelrorecek.feature.domain.LaunchesRepository.LaunchesResult.Error
+import com.pavelrorecek.feature.domain.LaunchesRepository.LaunchesResult.Loaded
+import com.pavelrorecek.feature.domain.LaunchesRepository.LaunchesResult.Loading
+import com.pavelrorecek.feature.domain.ObserveLaunchesUseCase
+import com.pavelrorecek.feature.domain.RequestLaunchesUseCase
+import com.pavelrorecek.feature.model.Launch
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 
 internal class LaunchesViewModel(
+    private val requestLaunches: RequestLaunchesUseCase,
+    observeLaunches: ObserveLaunchesUseCase,
     strings: LaunchesStrings,
     private val navigation: LaunchesNavigationController,
 ) : ViewModel() {
 
-    private val _state: MutableStateFlow<State>
-    val state: StateFlow<State>
+    private val _state: MutableStateFlow<State> = MutableStateFlow(State())
+    val state: StateFlow<State> = _state
+
+    private val livestream: Label = strings.livestream().let(::Label)
+    private val wiki: Label = strings.wiki().let(::Label)
 
     init {
-        val launches = listOf(
-            mockLaunch(
-                id = Launch.Id("0"),
-                name = Title("Starlink 4-42 (v1.2)"),
-                launchIn = Label("Launches in 20d 6h 20m 23s"),
-                isPinned = true,
-            ),
-            mockLaunch(
-                id = Launch.Id("1"),
-                name = Title("Starlink 4-12 (v1.2)"),
-                launchIn = Label("Launches in 14d 6h 20m 23s"),
-                isPinned = true,
-            ),
-            mockLaunch(
-                id = Launch.Id("2"),
-                name = Title("Starlink 4-54 (v1.2)"),
-                launchIn = Label("Launches in 10d 6h 20m 23s"),
-                isPinned = false,
-            ),
-            mockLaunch(
-                id = Launch.Id("3"),
-                name = Title("Starlink 4-123 (v1.2)"),
-                launchIn = Label("Launches in 10d 6h 20m 23s"),
-                isPinned = false,
-            ),
-            mockLaunch(
-                id = Launch.Id("4"),
-                name = Title("Starlink 4-67 (v1.2)"),
-                launchIn = Label("Launches in 10d 6h 20m 23s"),
-                isPinned = false,
-            ),
-        )
+        viewModelScope.launch { requestLaunches() }
+        viewModelScope.launch {
+            observeLaunches().collect { result ->
+                _state.value = when (result) {
+                    is Loaded -> {
+                        val launches = result.launches.map(::toState)
+                        val pinned = launches.filter { it.isPinned }
 
-        _state = MutableStateFlow(
-            State(
-                isPinnedVisible = true,
-                pinned = Title(strings.pinned()),
-                unpinAll = Label(strings.unpinAll()),
-                pinnedLaunches = launches.filter { it.isPinned },
-                upcoming = Title(strings.upcoming()),
-                sortBy = Label(strings.sortBy()),
-                upcomingLaunches = launches,
-            ),
-        )
-        state = _state
+                        State(
+                            isPinnedVisible = pinned.isNotEmpty(),
+                            pinned = Title(strings.pinned()),
+                            unpinAll = Label(strings.unpinAll()),
+                            pinnedLaunches = pinned,
+                            upcoming = Title(strings.upcoming()),
+                            sortBy = Label(strings.sortBy()),
+                            upcomingLaunches = launches,
+                        )
+                    }
+
+                    is Loading -> {
+                        _state.value // TODO
+                    }
+
+                    is Error -> {
+                        _state.value // TODO
+                    }
+                }
+            }
+        }
     }
 
-    private fun mockLaunch(
-        id: Launch.Id = Launch.Id("4"),
-        name: Title = Title("Starlink 4-67 (v1.2)"),
-        launchIn: Label = Label("Launches in 10d 6h 20m 23s"),
-        isPinned: Boolean = true,
-    ) = Launch(
-        id = id,
-        name = name,
-        launchIn = launchIn,
-        livestream = Label("Livestream"),
-        onLiveStream = { navigation.openUrl("https://www.youtube.com/watch?v=0a_00nJ_Y88") },
-        wiki = Label("Wiki"),
-        onWiki = { navigation.openUrl("https://en.wikipedia.org/wiki/DemoSat") },
-        isPinned = isPinned,
+    fun onRefresh() {
+        viewModelScope.launch { requestLaunches() }
+    }
+
+    private fun toState(model: Launch) = State.Launch(
+        id = model.id,
+        name = model.name.let(::Title),
+        launchIn = "TODO".let(::Label), // TODO
+        livestream = livestream,
+        onLiveStream = { model.livestreamUrl?.let(navigation::openUrl) },
+        wiki = wiki,
+        onWiki = { model.wikipediaUrl?.let(navigation::openUrl) },
+        isPinned = false,
     )
 
-    @Suppress("EmptyFunctionBlock")
-    fun onRefresh() {}
-
     data class State(
-        val isPinnedVisible: Boolean,
-        val pinned: Title,
-        val unpinAll: Label,
-        val pinnedLaunches: List<Launch>,
+        val isPinnedVisible: Boolean = false,
+        val pinned: Title = Title(""),
+        val unpinAll: Label = Label(""),
+        val pinnedLaunches: List<Launch> = emptyList(),
 
-        val upcoming: Title,
-        val sortBy: Label,
-        val upcomingLaunches: List<Launch>,
+        val upcoming: Title = Title(""),
+        val sortBy: Label = Label(""),
+        val upcomingLaunches: List<Launch> = emptyList(),
     ) {
 
         data class Launch(
-            val id: Id,
+            val id: com.pavelrorecek.feature.model.Launch.Id,
             val name: Title,
             val launchIn: Label,
             val livestream: Label,
@@ -103,10 +95,6 @@ internal class LaunchesViewModel(
             val wiki: Label,
             val onWiki: () -> Unit,
             val isPinned: Boolean,
-        ) {
-
-            @JvmInline
-            value class Id(val value: String)
-        }
+        )
     }
 }
